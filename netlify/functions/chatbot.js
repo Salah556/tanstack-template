@@ -22,7 +22,8 @@ exports.handler = async function (event) {
         },
       ],
     });
-
+console.log("Completion response:", completion);
+const botMessage = completion.choices[0].message.content;
     const botMessage = completion.choices[0].message.content;
     return {
       statusCode: 200,
