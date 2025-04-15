@@ -1,12 +1,23 @@
 const { OpenAI } = require("openai");
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // Make sure this is set in Netlify!
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 exports.handler = async function (event) {
   const body = JSON.parse(event.body);
   const userMessage = body.message;
+
+  // 🧪 Log when function runs
+  console.log("Function triggered. User message:", userMessage);
+
+  // ✅ Guard against empty messages
+  if (!userMessage || userMessage.trim() === "") {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ reply: "Message is empty. Please ask something!" }),
+    };
+  }
 
   try {
     const completion = await openai.chat.completions.create({
@@ -23,7 +34,6 @@ exports.handler = async function (event) {
       ],
     });
 
-    // 🧪 Debugging output
     console.log("Completion response:", completion);
 
     const botMessage = completion.choices[0].message.content;
@@ -33,7 +43,6 @@ exports.handler = async function (event) {
       body: JSON.stringify({ reply: botMessage }),
     };
   } catch (err) {
-    // 🧪 Error logging
     console.log("OpenAI API ERROR:", err);
     return {
       statusCode: 500,
